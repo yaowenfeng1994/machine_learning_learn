@@ -29,3 +29,4 @@ with tf.Session() as sess:
     print("Variable a is {}".format(a_out))
 
 print(np.arange(0, 10)[:, np.newaxis])
+# print(np.arange(0, 10)[np.newaxis, :].shape)
