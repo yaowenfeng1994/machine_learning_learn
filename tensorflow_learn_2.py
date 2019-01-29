@@ -80,19 +80,52 @@ def normalize_dataset(lex):
     return dataset
 
 
-a = create_lexicon(pos_file, "")
-b = normalize_dataset(a)
-print(b)
-# random.shuffle(b)
-# with open('save.pickle', 'wb') as f:
-#     pickle.dump(b, f)
+# a = create_lexicon(pos_file, "")
+# b = normalize_dataset(a)
+# print(b)
+# # random.shuffle(b)
+# # with open('save.pickle', 'wb') as f:
+# #     pickle.dump(b, f)
+#
+#
+# # 取样本中的10%做为测试数据
+# test_size = int(len(b) * 0.1)
+#
+# c = np.array(b)
+#
+# # train_dataset = c[:-test_size]
+# # test_dataset = c[-test_size:]
+#
+# # Feed-Forward Neural Network
+# # 定义每个层有多少'神经元''
+n_input_layer = 100  # 输入层
+
+n_layer_1 = 1000  # hide layer
+n_layer_2 = 1000  # hide layer(隐藏层)听着很神秘，其实就是除输入输出层外的中间层
+
+n_output_layer = 2  # 输出层
 
 
-# 取样本中的10%做为测试数据
-test_size = int(len(b) * 0.1)
+# 定义待训练的神经网络
+# def neural_network(data):
+#     # 定义第一层"神经元"的权重和biases
+#     layer_1_w_b = {'w_': tf.Variable(tf.random_normal([n_input_layer, n_layer_1])),
+#                    'b_': tf.Variable(tf.random_normal([n_layer_1]))}
+#     # 定义第二层"神经元"的权重和biases
+#     layer_2_w_b = {'w_': tf.Variable(tf.random_normal([n_layer_1, n_layer_2])),
+#                    'b_': tf.Variable(tf.random_normal([n_layer_2]))}
+#     # 定义输出层"神经元"的权重和biases
+#     layer_output_w_b = {'w_': tf.Variable(tf.random_normal([n_layer_2, n_output_layer])),
+#                         'b_': tf.Variable(tf.random_normal([n_output_layer]))}
+#
+#     # w·x+b
+#     layer_1 = tf.add(tf.matmul(data, layer_1_w_b['w_']), layer_1_w_b['b_'])
+#     layer_1 = tf.nn.relu(layer_1)  # 激活函数
+#     layer_2 = tf.add(tf.matmul(layer_1, layer_2_w_b['w_']), layer_2_w_b['b_'])
+#     layer_2 = tf.nn.relu(layer_2)  # 激活函数
+#     layer_output = tf.add(tf.matmul(layer_2, layer_output_w_b['w_']), layer_output_w_b['b_'])
+#
+#     return layer_output
 
-c = np.array(b)
-print(111, c)
+print(tf.random_normal([n_input_layer, n_layer_1]))
 
-# train_dataset = c[:-test_size]
-# test_dataset = c[-test_size:]
