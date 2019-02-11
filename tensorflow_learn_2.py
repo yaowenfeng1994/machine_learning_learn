@@ -105,7 +105,6 @@ n_layer_2 = 1000  # hide layer(隐藏层)听着很神秘，其实就是除输入
 
 n_output_layer = 2  # 输出层
 
-
 # 定义待训练的神经网络
 # def neural_network(data):
 #     # 定义第一层"神经元"的权重和biases
@@ -117,7 +116,6 @@ n_output_layer = 2  # 输出层
 #     # 定义输出层"神经元"的权重和biases
 #     layer_output_w_b = {'w_': tf.Variable(tf.random_normal([n_layer_2, n_output_layer])),
 #                         'b_': tf.Variable(tf.random_normal([n_output_layer]))}
-#
 #     # w·x+b
 #     layer_1 = tf.add(tf.matmul(data, layer_1_w_b['w_']), layer_1_w_b['b_'])
 #     layer_1 = tf.nn.relu(layer_1)  # 激活函数
@@ -127,5 +125,11 @@ n_output_layer = 2  # 输出层
 #
 #     return layer_output
 
-print(tf.random_normal([n_input_layer, n_layer_1]))
+# print(tf.random_normal([n_input_layer, n_layer_1]))
+# print(tf.Variable(tf.random_normal([n_input_layer, n_layer_1])))
 
+w1 = tf.Variable(tf.random_normal([2, 2]))
+sess = tf.Session()
+init = tf.global_variables_initializer()
+sess.run(init)
+print(sess.run(w1))
