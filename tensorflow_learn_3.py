@@ -3,6 +3,7 @@
 import tensorflow as tf
 import numpy as np
 import os
+
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 # 为什么随机数不能用整数？randint
@@ -26,5 +27,5 @@ with tf.Session() as sess:
     sess.run(init)
     for step in range(3001):
         sess.run(train)
-        if step%200 == 0:
+        if step % 200 == 0:
             print(step, sess.run([k, b]))
