@@ -27,19 +27,28 @@ init = tf.global_variables_initializer()
 
 correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(prediction, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+with tf.Session() as sess:
+    sess.run(init)
+    for epoch in range(51):
+        for batch in range(n_batch):
+            images, labels = mnist.train.next_batch(batch_size)
+            sess.run(train_step, feed_dict={x: images, y: labels})
 
-filename = 'train-labels-idx1-ubyte'
-binfile = open(filename, 'rb')
-buf = binfile.read()
-print(buf)
-index = 0
-struct.unpack_from('>IIII', buf, index)
-index += struct.calcsize('>IIII')
-im = struct.unpack_from('>784B', buf, index)
-index += struct.calcsize('>784B')
-im = np.array(im)
-im = im.reshape(28, 28)
-fig = plt.figure()
-plotwindow = fig.add_subplot(111)
-plt.imshow(im, cmap='gray')
-plt.show()
+        acc = sess.run(accuracy, feed_dict={x: mnist.test.images, y: mnist.test.labels})
+        print("Iter: " + str(epoch) + ", Testing Accuracy: " + str(acc))
+
+# filename = 'train-labels-idx1-ubyte'
+# binfile = open(filename, 'rb')
+# buf = binfile.read()
+# print(buf)
+# index = 0
+# struct.unpack_from('>IIII', buf, index)
+# index += struct.calcsize('>IIII')
+# im = struct.unpack_from('>784B', buf, index)
+# index += struct.calcsize('>784B')
+# im = np.array(im)
+# im = im.reshape(28, 28)
+# fig = plt.figure()
+# plotwindow = fig.add_subplot(111)
+# plt.imshow(im, cmap='gray')
+# plt.show()
