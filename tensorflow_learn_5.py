@@ -11,7 +11,6 @@ import struct
 mnist = input_data.read_data_sets("MNIST_data", one_hot=True)
 batch_size = 100
 n_batch = mnist.train.num_examples // batch_size
-print(n_batch)
 
 x = tf.placeholder(tf.float32, [None, 784])
 y = tf.placeholder(tf.float32, [None, 10])
