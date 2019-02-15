@@ -38,11 +38,6 @@ W4 = tf.Variable(tf.truncated_normal([1000, 10], stddev=0.1))
 b4 = tf.Variable(tf.zeros([10]) + 0.1)
 prediction = tf.nn.softmax(tf.matmul(L3_drop, W4) + b4)
 
-# W = tf.Variable(tf.zeros([784, 10]))
-# b = tf.Variable(tf.zeros([10]))
-# prediction = tf.nn.softmax(tf.matmul(x, W) + b)
-
-# loss = tf.reduce_mean(tf.square(y - prediction))
 loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y, logits=prediction))
 train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
 
@@ -61,18 +56,3 @@ with tf.Session() as sess:
         train_acc = sess.run(accuracy, feed_dict={x: mnist.train.images, y: mnist.train.labels, keep_prob: 1.0})
         print("Iter: " + str(epoch) + ", Testing Accuracy: " + str(test_acc) + ", Training Accuracy: " + str(train_acc))
 
-# filename = 'train-labels-idx1-ubyte'
-# binfile = open(filename, 'rb')
-# buf = binfile.read()
-# print(buf)
-# index = 0
-# struct.unpack_from('>IIII', buf, index)
-# index += struct.calcsize('>IIII')
-# im = struct.unpack_from('>784B', buf, index)
-# index += struct.calcsize('>784B')
-# im = np.array(im)
-# im = im.reshape(28, 28)
-# fig = plt.figure()
-# plotwindow = fig.add_subplot(111)
-# plt.imshow(im, cmap='gray')
-# plt.show()
