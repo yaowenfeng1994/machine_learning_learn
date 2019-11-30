@@ -2,12 +2,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import adalineGD
+import math
 
 df = pd.read_csv("iris.data")
 y = df.iloc[0:100, 4].values
 
-y = np.where(y == "Iris-setosa", -1, 1)
-
+y = np.where(y == "Iris-setosa", 0, 1)
 
 x = df.iloc[0:100, [0, 2]].values
 
@@ -51,10 +51,27 @@ class Perceptron(object):
                 self.wb[1:] += update * xi
                 self.wb[0] += update
                 errors += int(update != 0.0)
-
             self.errors_.append(errors)
 
         return self
+
+    def logistics_fit(self, x, y):
+        self.wb = np.zeros(1 + x.shape[1])
+        self.errors_ = []
+        for idx in range(self.n_iter):
+            for xi, yi in zip(x, y):
+                update = (yi-self.logistics(self.net_input(xi))) * xi  # 这条是 李航统计学习求导 得出
+                self.wb[1:] += update
+                # self.wb[0] += update
+                yp = self.logistics(self.net_input(xi))
+                print("样本结果：", yi, "预测结果:", yp)
+            print("第 %d 次迭代" % idx)
+        print(self.wb)
+        return self
+
+    @staticmethod
+    def logistics(s):
+        return 1.0 / (1 + math.exp(-s))
 
     def net_input(self, xi):
         """
@@ -73,8 +90,8 @@ class Perceptron(object):
         return np.where(self.net_input(xi) <= 0.0, -1, 1)
 
 
-ppn = adalineGD.AdalineGD(eta=0.0001, n_iter=100)
-ppn.fit(x, y)
+ppn = Perceptron(eta=0.001, n_iter=20)
+ppn.logistics_fit(x, y)
 # print(ppn.log())
 
 # ppn = adalineGD.AdalineSGD(eta=0.1, n_iter=10, shuffle=False, random_state=1)

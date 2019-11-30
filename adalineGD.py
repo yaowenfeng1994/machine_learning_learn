@@ -23,6 +23,7 @@ class AdalineGD(object):
             self.w_[0] += self.eta * errors.sum()
             cost = (errors ** 2).sum() / 2.0
             self.cost_.append(cost)
+        print(self.cost_)
         return self
 
     def net_input(self, x):
