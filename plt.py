@@ -60,7 +60,7 @@ class Perceptron(object):
         self.errors_ = []
         for idx in range(self.n_iter):
             for xi, yi in zip(x, y):
-                update = (yi-self.logistics(self.net_input(xi))) * xi  # 这条是 李航统计学习求导 得出
+                update = (yi - self.logistics(self.net_input(xi))) * xi  # 这条是 李航统计学习求导 得出
                 self.wb[1:] += update
                 # self.wb[0] += update
                 yp = self.logistics(self.net_input(xi))
