@@ -21,19 +21,29 @@ x_test_std = stdsc.fit_transform(x_test)
 
 # lr = LogisticRegression()
 # lr.fit(x_train_std, y_train)
-# print(lr.score(x_train_std, y_train))
+# print(lr.score(x_test_std, y_test))
 # print(lr.coef_, lr.intercept_)
 
 # sbs = SBS(lr, k_features=8)
 # sbs.fit(x_train_std, y_train)
 # print(sbs.scores_)
 # print(sbs.estimator.intercept_, sbs.estimator.coef_)
-feat_labels = df_wine.columns[1:]
-print(feat_labels)
-forest = RandomForestClassifier(n_estimators=10000, random_state=0, n_jobs=1)
-forest.fit(x_train, y_train)
-importance = forest.feature_importances_
-indices = np.argsort(importance)[::-1]
-print(importance)
-for f in range(x_train.shape[1]):
-    print("%2d) %-*s %f" % (f + 1, 30, feat_labels[f], importance[indices[f]]))
+# feat_labels = df_wine.columns[1:]
+# print(feat_labels)
+# forest = RandomForestClassifier(n_estimators=10000, random_state=0, n_jobs=1)
+# forest.fit(x_train, y_train)
+# importance = forest.feature_importances_
+# indices = np.argsort(importance)[::-1]
+# print(importance)
+# for f in range(x_train.shape[1]):
+#     print("%2d) %-*s %f" % (f + 1, 30, feat_labels[f], importance[indices[f]]))
+
+# for idx, a in enumerate(x_train_std.T):
+    # print(a)
+    # print(idx)
+cov_mat = np.cov(x_train_std.T)
+print(cov_mat)
+
+
+
+
