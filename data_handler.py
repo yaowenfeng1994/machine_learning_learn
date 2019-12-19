@@ -36,13 +36,16 @@ x_test_std = stdsc.fit_transform(x_test)
 # indices = np.argsort(importance)[::-1]
 # print(importance)
 # for f in range(x_train.shape[1]):
-#     print("%2d) %-*s %f" % (f + 1, 30, feat_labels[f], importance[indices[f]]))
+#     print("%2d) %-*s %f" % (f + 1, 30, feat_labelsdata_handler.py:37[f], importance[indices[f]]))
 
 # for idx, a in enumerate(x_train_std.T):
     # print(a)
     # print(idx)
 cov_mat = np.cov(x_train_std.T)
-print(cov_mat)
+# print(cov_mat)
+eigen_vals, eigen_vecs = np.linalg.eig(cov_mat)
+print(eigen_vals)
+print(eigen_vecs)
 
 
 
