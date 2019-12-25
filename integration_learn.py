@@ -96,57 +96,106 @@ class MajorityVoteClassifier(BaseEstimator, ClassifierMixin):
 
 
 if __name__ == "__main__":
-    from sklearn import datasets
     from sklearn.preprocessing import LabelEncoder
     from sklearn.model_selection import train_test_split
-    from sklearn.linear_model import LogisticRegression
-    from sklearn.tree import DecisionTreeClassifier
-    from sklearn.neighbors import KNeighborsClassifier
-    from sklearn.pipeline import Pipeline
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.model_selection import cross_val_score
+    from sklearn.ensemble import AdaBoostClassifier
+    from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+    from sklearn.metrics import accuracy_score
     import numpy as np
+    import pandas as pd
 
-    iris = datasets.load_iris()
-    x, y = iris.data[50:, [1, 2]], iris.target[50:]
-    le = LabelEncoder()
-    y = le.fit_transform(y)
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.5, random_state=1)
-    clf1 = LogisticRegression(penalty="l2", C=0.001, random_state=0)
-    clf2 = DecisionTreeClassifier(max_depth=1, criterion="entropy", random_state=0)
-    clf3 = KNeighborsClassifier(n_neighbors=1, p=2, metric="minkowski")
-    pipe1 = Pipeline([["sc", StandardScaler()], ["clf", clf1]])
-    pipe3 = Pipeline([["sc", StandardScaler()], ["clf", clf3]])
-    clf_labels = ["Logistic Regression", "Decision Tree", "KNN"]
-    # for clf, label in zip([pipe1, clf2, pipe3], clf_labels):
+    # iris = datasets.load_iris()
+    # x, y = iris.data[50:, [1, 2]], iris.target[50:]
+    # le = LabelEncoder()
+    # y = le.fit_transform(y)
+    # x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.5, random_state=1)
+    # clf1 = LogisticRegression(penalty="l2", C=0.001, random_state=0)
+    # clf2 = DecisionTreeClassifier(max_depth=1, criterion="entropy", random_state=0)
+    # clf3 = KNeighborsClassifier(n_neighbors=1, p=2, metric="minkowski")
+    # pipe1 = Pipeline([["sc", StandardScaler()], ["clf", clf1]])
+    # pipe3 = Pipeline([["sc", StandardScaler()], ["clf", clf3]])
+    # clf_labels = ["Logistic Regression", "Decision Tree", "KNN"]
+    # # for clf, label in zip([pipe1, clf2, pipe3], clf_labels):
+    # #     scores = cross_val_score(estimator=clf, X=x_train, y=y_train, cv=10, scoring="roc_auc")
+    # #     print("ROC AUC: %0.2f (+/- %0.2f) [%s]" % (scores.mean(), scores.std(), label))
+    #
+    # mv_clf = MajorityVoteClassifier(classifiers=[pipe1, clf2, pipe3])
+    # clf_labels += ["Majority Voting"]
+    # all_clf = [pipe1, clf2, pipe3, mv_clf]
+    # for clf, label in zip(all_clf, clf_labels):
     #     scores = cross_val_score(estimator=clf, X=x_train, y=y_train, cv=10, scoring="roc_auc")
     #     print("ROC AUC: %0.2f (+/- %0.2f) [%s]" % (scores.mean(), scores.std(), label))
 
-    mv_clf = MajorityVoteClassifier(classifiers=[pipe1, clf2, pipe3])
-    clf_labels += ["Majority Voting"]
-    all_clf = [pipe1, clf2, pipe3, mv_clf]
-    for clf, label in zip(all_clf, clf_labels):
-        scores = cross_val_score(estimator=clf, X=x_train, y=y_train, cv=10, scoring="roc_auc")
-        print("ROC AUC: %0.2f (+/- %0.2f) [%s]" % (scores.mean(), scores.std(), label))
+    ####################################################################################################################
+
+    # from sklearn.metrics import roc_curve, auc
+    # import matplotlib.pyplot as plt
+    #
+    # colors = ["black", "orange", "blue", "green"]
+    # line_styles = [":", "--", "-.", "-"]
+    # for clf, label, clr, ls in zip(all_clf, clf_labels, colors, line_styles):
+    #     y_pred = clf.fit(x_train, y_train).predict_proba(x_test)[:, 1]
+    #     fpr, tpr, thresholds = roc_curve(y_true=y_test, y_score=y_pred)
+    #     roc_auc = auc(x=fpr, y=tpr)
+    #     plt.plot(fpr, tpr, color=clr, linestyle=ls, label="%s (auc=%0.2f)" % (label, roc_auc))
+    #
+    # plt.legend(loc="lower right")
+    # plt.plot([0, 1], [0, 1], linestyle="--", color="gray", linewidth=2)
+    # plt.xlim([-0.1, 1.1])
+    # plt.ylim([-0.1, 1.1])
+    # plt.grid()
+    # plt.xlabel("False Positive Rate")
+    # plt.ylabel("True Positive Rate")
+    # plt.show()
 
     ####################################################################################################################
 
-    from sklearn.metrics import roc_curve, auc
-    import matplotlib.pyplot as plt
+    df_wine = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data", header=None)
+    df_wine.columns = ['Class label', 'Alcohol', 'Malic acid', 'Ash', 'Alcalinity of ash', 'Magnesium', 'Total phenols',
+                       'Flavanoids', 'Nonflavanoid phenols', 'Proanthocyanins', 'Color intensity', 'Hue',
+                       'OD280/OD315 of diluted wines', 'Proline']
+    df_wine = df_wine[df_wine["Class label"] != 1]
+    y = df_wine["Class label"].values
+    x = df_wine[["Alcohol", "Hue"]].values
+    le = LabelEncoder()
+    y = le.fit_transform(y)
+    # print(x, y)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=0)
+    #
+    # tree = DecisionTreeClassifier(criterion="entropy", max_depth=None)
+    # bag = BaggingClassifier(base_estimator=tree, n_estimators=500, max_samples=1.0, max_features=1.0, bootstrap=True,
+    #                         bootstrap_features=False, n_jobs=1, random_state=1)
+    # tree.fit(x_train, y_train)
+    # y_train_pred = tree.predict(x_train)
+    # y_test_pred = tree.predict(x_test)
+    # tree_train = accuracy_score(y_train, y_train_pred)
+    # tree_test = accuracy_score(y_test, y_test_pred)
+    # print("Decision tree train/test accuracies %.3f/%.3f" % (tree_train, tree_test))
+    #
+    # bag.fit(x_train, y_train)
+    # y_train_pred = bag.predict(x_train)
+    # y_test_pred = bag.predict(x_test)
+    # bag_train = accuracy_score(y_train, y_train_pred)
+    # bag_test = accuracy_score(y_test, y_test_pred)
+    # print("Bagging train/test accuracies %.3f/%.3f" % (bag_train, bag_test))
 
-    colors = ["black", "orange", "blue", "green"]
-    line_styles = [":", "--", "-.", "-"]
-    for clf, label, clr, ls in zip(all_clf, clf_labels, colors, line_styles):
-        y_pred = clf.fit(x_train, y_train).predict_proba(x_test)[:, 1]
-        fpr, tpr, thresholds = roc_curve(y_true=y_test, y_score=y_pred)
-        roc_auc = auc(x=fpr, y=tpr)
-        plt.plot(fpr, tpr, color=clr, linestyle=ls, label="%s (auc=%0.2f)" % (label, roc_auc))
+    ####################################################################################################################
 
-    plt.legend(loc="lower right")
-    plt.plot([0, 1], [0, 1], linestyle="--", color="gray", linewidth=2)
-    plt.xlim([-0.1, 1.1])
-    plt.ylim([-0.1, 1.1])
-    plt.grid()
-    plt.xlabel("False Positive Rate")
-    plt.ylabel("True Positive Rate")
-    plt.show()
+    tree = DecisionTreeClassifier(max_depth=1, criterion="entropy", random_state=0)
+    ada = AdaBoostClassifier(base_estimator=tree, n_estimators=500, learning_rate=0.1, random_state=0)
+    tree.fit(x_train, y_train)
+    y_train_pred = tree.predict(x_train)
+    y_test_pred = tree.predict(x_test)
+    tree_train = accuracy_score(y_train, y_train_pred)
+    tree_test = accuracy_score(y_test, y_test_pred)
+    print("Decision tree train/test accuracies %.3f/%.3f" % (tree_train, tree_test))
+
+    ada.fit(x_train, y_train)
+    y_train_pred = ada.predict(x_train)
+    x_test_pred = ada.predict(x_test)
+    ada_train = accuracy_score(y_train, y_train_pred)
+    ada_test = accuracy_score(y_test, y_test_pred)
+    print("AdaBoost tree train/test accuracies %.3f/%.3f" % (ada_train, ada_test))
+
+    ####################################################################################################################
+
