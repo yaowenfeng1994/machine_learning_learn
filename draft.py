@@ -21,30 +21,36 @@ target_obj = {
             "is_deleted": 0,
             "children": [
                 {
-                    "name": "实验楼",
-                    "is_deleted": 0,
-                    "children": []
-                },
-                {
-                    "name": "黄鹤楼",
-                    "is_deleted": 1,
-                    "children": []
-                }
-            ]
-        },
-        {
-            "name": "罗伊楼",
-            "is_deleted": 0,
-            "children": [
-                {
-                    "name": "实验楼",
+                    "name": "实验楼1",
                     "is_deleted": 1,
                     "children": []
                 },
                 {
                     "name": "黄鹤楼",
                     "is_deleted": 0,
-                    "children": []
+                    "children": [
+                        {
+                            "name": "实验楼1",
+                            "is_deleted": 0,
+                            "children": [
+                                {
+                                    "name": "实验楼11",
+                                    "is_deleted": 0,
+                                    "children": []
+                                },
+                                {
+                                    "name": "实验楼22",
+                                    "is_deleted": 1,
+                                    "children": []
+                                }
+                            ]
+                        },
+                        {
+                            "name": "实验楼2",
+                            "is_deleted": 1,
+                            "children": []
+                        }
+                    ]
                 }
             ]
         }
@@ -52,23 +58,20 @@ target_obj = {
 }
 
 
-class BeiWeiXiaoHuang(object):
-
-    def traverse_model(self, obj):
-        self.remove_model(obj)
-        if "children" in obj:
-            if obj["children"].__len__() > 0:
-                for child_obj in obj["children"]:
-                    self.traverse_model(child_obj)
-        return obj
-
-    @staticmethod
-    def remove_model(remove_obj):
-        if remove_obj["is_deleted"] == 1:
-            remove_obj.clear()
-        return remove_obj
+def traverse_model(obj):
+    if obj["is_deleted"] == 1:
+        return None
+    if "children" in obj:
+        if obj["children"].__len__() > 0:
+            pop_list = []
+            for idx, child_obj in enumerate(obj["children"]):
+                if not traverse_model(child_obj):
+                    pop_list.append(idx)
+            for i in pop_list:
+                obj["children"].pop(i)
+    return obj
 
 
-result = BeiWeiXiaoHuang().traverse_model(target_obj)
+result = traverse_model(target_obj)
 print(result)
 
