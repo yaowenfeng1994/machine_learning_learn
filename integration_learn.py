@@ -51,24 +51,24 @@ class MajorityVoteClassifier(BaseEstimator, ClassifierMixin):
             self.classifiers_.append(fitted_clf)
         return self
 
-    def predict(self, X):
-        '''
-        Predict class labels for X.
-        Parameters:
-        X:{array-like,sparse matrix},Shape=[n_samples,n_features],Matrix of testing samples.
-        Returns:
-        maj_vote:array-like,shape=[n_samples],Predicted class labels.
-        '''
-        if self.vote == 'probability':
-            maj_vote = np.argmax(self.predict_proba(X), axis=1)
-        else:  # 'classlabel' vote
-            # collect results from clf.predict Calls
-            predictions = np.asarray([clf.predict(X) for clf in self.classifiers_]).T
-            maj_vote = np.apply_along_axis(lambda x: np.argmax(np.bincount(x, weights=self.weights)), axis=1,
-                                           arr=predictions)
-        maj_vote = self.lablenc_.inverse_transform(maj_vote)
-        return maj_vote
-
+    # def predict(self, X):
+    #     '''
+    #     Predict class labels for X.
+    #     Parameters:
+    #     X:{array-like,sparse matrix},Shape=[n_samples,n_features],Matrix of testing samples.
+    #     Returns:
+    #     maj_vote:array-like,shape=[n_samples],Predicted class labels.
+    #     '''
+    #     if self.vote == 'probability':
+    #         maj_vote = np.argmax(self.predict_proba(X), axis=1)
+    #     else:  # 'classlabel' vote
+    #         # collect results from clf.predict Calls
+    #         predictions = np.asarray([clf.predict(X) for clf in self.classifiers_]).T
+    #         maj_vote = np.apply_along_axis(lambda x: np.argmax(np.bincount(x, weights=self.weights)), axis=1,
+    #                                        arr=predictions)
+    #     maj_vote = self.lablenc_.inverse_transform(maj_vote)
+    #     return maj_vote
+    #
     def predict_proba(self, X):
         '''
         Predict class probabilities for X.
@@ -81,50 +81,54 @@ class MajorityVoteClassifier(BaseEstimator, ClassifierMixin):
         avg_proba = np.average(probas, axis=0, weights=self.weights)
         return avg_proba
 
-    def get_params(self, deep=True):
-        '''
-        Get classifier parameter names for GridSearch.
-        '''
-        if not deep:
-            return super(MajorityVoteClassifier, self).get_params(deep=False)
-        else:
-            out = self.named_classifiers.copy()
-            for name, step in six.iteritems(self.named_classifiers):
-                for key, value in six.iteritems(step.get_params(deep=True)):
-                    out['%s__%s' % (name, key)] = value
-            return out
+    # def get_params(self, deep=True):
+    #     '''
+    #     Get classifier parameter names for GridSearch.
+    #     '''
+    #     if not deep:
+    #         return super(MajorityVoteClassifier, self).get_params(deep=False)
+    #     else:
+    #         out = self.named_classifiers.copy()
+    #         for name, step in six.iteritems(self.named_classifiers):
+    #             for key, value in six.iteritems(step.get_params(deep=True)):
+    #                 out['%s__%s' % (name, key)] = value
+    #         return out
 
 
 if __name__ == "__main__":
     from sklearn.preprocessing import LabelEncoder
-    from sklearn.model_selection import train_test_split
+    from sklearn.model_selection import train_test_split,cross_val_score
     from sklearn.ensemble import AdaBoostClassifier
     from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-    from sklearn.metrics import accuracy_score
+    from sklearn import datasets
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.neighbors import KNeighborsClassifier
+    from sklearn.pipeline import Pipeline
     import numpy as np
     import pandas as pd
 
-    # iris = datasets.load_iris()
-    # x, y = iris.data[50:, [1, 2]], iris.target[50:]
-    # le = LabelEncoder()
-    # y = le.fit_transform(y)
-    # x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.5, random_state=1)
-    # clf1 = LogisticRegression(penalty="l2", C=0.001, random_state=0)
-    # clf2 = DecisionTreeClassifier(max_depth=1, criterion="entropy", random_state=0)
-    # clf3 = KNeighborsClassifier(n_neighbors=1, p=2, metric="minkowski")
-    # pipe1 = Pipeline([["sc", StandardScaler()], ["clf", clf1]])
-    # pipe3 = Pipeline([["sc", StandardScaler()], ["clf", clf3]])
-    # clf_labels = ["Logistic Regression", "Decision Tree", "KNN"]
-    # # for clf, label in zip([pipe1, clf2, pipe3], clf_labels):
-    # #     scores = cross_val_score(estimator=clf, X=x_train, y=y_train, cv=10, scoring="roc_auc")
-    # #     print("ROC AUC: %0.2f (+/- %0.2f) [%s]" % (scores.mean(), scores.std(), label))
-    #
-    # mv_clf = MajorityVoteClassifier(classifiers=[pipe1, clf2, pipe3])
-    # clf_labels += ["Majority Voting"]
-    # all_clf = [pipe1, clf2, pipe3, mv_clf]
-    # for clf, label in zip(all_clf, clf_labels):
+    iris = datasets.load_iris()
+    x, y = iris.data[50:, [1, 2]], iris.target[50:]
+    le = LabelEncoder()
+    y = le.fit_transform(y)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.5, random_state=1)
+    clf1 = LogisticRegression(penalty="l2", C=0.001, random_state=0)
+    clf2 = DecisionTreeClassifier(max_depth=1, criterion="entropy", random_state=0)
+    clf3 = KNeighborsClassifier(n_neighbors=1, p=2, metric="minkowski")
+    pipe1 = Pipeline([["sc", StandardScaler()], ["clf", clf1]])
+    pipe3 = Pipeline([["sc", StandardScaler()], ["clf", clf3]])
+    clf_labels = ["Logistic Regression", "Decision Tree", "KNN"]
+    # for clf, label in zip([pipe1, clf2, pipe3], clf_labels):
     #     scores = cross_val_score(estimator=clf, X=x_train, y=y_train, cv=10, scoring="roc_auc")
     #     print("ROC AUC: %0.2f (+/- %0.2f) [%s]" % (scores.mean(), scores.std(), label))
+
+    mv_clf = MajorityVoteClassifier(classifiers=[pipe1, clf2, pipe3])
+    clf_labels += ["Majority Voting"]
+    all_clf = [pipe1, clf2, pipe3, mv_clf]
+    for clf, label in zip(all_clf, clf_labels):
+        scores = cross_val_score(estimator=clf, X=x_train, y=y_train, cv=10, scoring="roc_auc")
+        print("ROC AUC: %0.2f (+/- %0.2f) [%s]" % (scores.mean(), scores.std(), label))
 
     ####################################################################################################################
 
@@ -150,17 +154,17 @@ if __name__ == "__main__":
 
     ####################################################################################################################
 
-    df_wine = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data", header=None)
-    df_wine.columns = ['Class label', 'Alcohol', 'Malic acid', 'Ash', 'Alcalinity of ash', 'Magnesium', 'Total phenols',
-                       'Flavanoids', 'Nonflavanoid phenols', 'Proanthocyanins', 'Color intensity', 'Hue',
-                       'OD280/OD315 of diluted wines', 'Proline']
-    df_wine = df_wine[df_wine["Class label"] != 1]
-    y = df_wine["Class label"].values
-    x = df_wine[["Alcohol", "Hue"]].values
-    le = LabelEncoder()
-    y = le.fit_transform(y)
-    # print(x, y)
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=0)
+    # df_wine = pd.read_csv("https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data", header=None)
+    # df_wine.columns = ['Class label', 'Alcohol', 'Malic acid', 'Ash', 'Alcalinity of ash', 'Magnesium', 'Total phenols',
+    #                    'Flavanoids', 'Nonflavanoid phenols', 'Proanthocyanins', 'Color intensity', 'Hue',
+    #                    'OD280/OD315 of diluted wines', 'Proline']
+    # df_wine = df_wine[df_wine["Class label"] != 1]
+    # y = df_wine["Class label"].values
+    # x = df_wine[["Alcohol", "Hue"]].values
+    # le = LabelEncoder()
+    # y = le.fit_transform(y)
+    # # print(x, y)
+    # x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=0)
     #
     # tree = DecisionTreeClassifier(criterion="entropy", max_depth=None)
     # bag = BaggingClassifier(base_estimator=tree, n_estimators=500, max_samples=1.0, max_features=1.0, bootstrap=True,
@@ -181,21 +185,21 @@ if __name__ == "__main__":
 
     ####################################################################################################################
 
-    tree = DecisionTreeClassifier(max_depth=1, criterion="entropy", random_state=0)
-    ada = AdaBoostClassifier(base_estimator=tree, n_estimators=500, learning_rate=0.1, random_state=0)
-    tree.fit(x_train, y_train)
-    y_train_pred = tree.predict(x_train)
-    y_test_pred = tree.predict(x_test)
-    tree_train = accuracy_score(y_train, y_train_pred)
-    tree_test = accuracy_score(y_test, y_test_pred)
-    print("Decision tree train/test accuracies %.3f/%.3f" % (tree_train, tree_test))
-
-    ada.fit(x_train, y_train)
-    y_train_pred = ada.predict(x_train)
-    x_test_pred = ada.predict(x_test)
-    ada_train = accuracy_score(y_train, y_train_pred)
-    ada_test = accuracy_score(y_test, y_test_pred)
-    print("AdaBoost tree train/test accuracies %.3f/%.3f" % (ada_train, ada_test))
+    # tree = DecisionTreeClassifier(max_depth=1, criterion="entropy", random_state=0)
+    # ada = AdaBoostClassifier(base_estimator=tree, n_estimators=500, learning_rate=0.1, random_state=0)
+    # tree.fit(x_train, y_train)
+    # y_train_pred = tree.predict(x_train)
+    # y_test_pred = tree.predict(x_test)
+    # tree_train = accuracy_score(y_train, y_train_pred)
+    # tree_test = accuracy_score(y_test, y_test_pred)
+    # print("Decision tree train/test accuracies %.3f/%.3f" % (tree_train, tree_test))
+    #
+    # ada.fit(x_train, y_train)
+    # y_train_pred = ada.predict(x_train)
+    # x_test_pred = ada.predict(x_test)
+    # ada_train = accuracy_score(y_train, y_train_pred)
+    # ada_test = accuracy_score(y_test, y_test_pred)
+    # print("AdaBoost tree train/test accuracies %.3f/%.3f" % (ada_train, ada_test))
 
     ####################################################################################################################
 
