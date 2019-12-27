@@ -79,12 +79,12 @@ target_obj = {
                                                 },
                                                 {
                                                     "name": "实验楼77",
-                                                    "is_deleted": 0,
+                                                    "is_deleted": 1,
                                                     "children": []
                                                 },
                                                 {
                                                     "name": "实验楼88",
-                                                    "is_deleted": 1,
+                                                    "is_deleted": 0,
                                                     "children": []
                                                 }
                                             ]
@@ -157,7 +157,9 @@ def traverse_model_v2(obj):
         flag = 0
         for _ in range(len(obj["children"])):
             if not traverse_model_v2(obj["children"][flag]):
+                # obj["children"].pop(flag)
                 obj["children"].pop(flag)
+                obj["children"] = obj["children"]
             else:
                 flag += 1
     return obj
