@@ -1,5 +1,5 @@
 # 该文件是草稿文件
-import numpy as np
+import json
 
 # for p in combinations((0, 1, 2, 3, 4, 5, 6, 7, 8, 9), r=8):
 #     print(p)
@@ -21,11 +21,6 @@ target_obj = {
             "is_deleted": 0,
             "children": [
                 {
-                    "name": "实验楼1",
-                    "is_deleted": 1,
-                    "children": []
-                },
-                {
                     "name": "黄鹤楼",
                     "is_deleted": 0,
                     "children": [
@@ -36,17 +31,79 @@ target_obj = {
                                 {
                                     "name": "实验楼11",
                                     "is_deleted": 0,
+                                    "children": [
+                                        {
+                                            "name": "实验楼2232",
+                                            "is_deleted": 0,
+                                            "children": [
+                                                {
+                                                    "name": "实验楼22",
+                                                    "is_deleted": 1,
+                                                    "children": []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "实验楼22",
+                                    "is_deleted": 0,
+                                    "children": [
+                                        {
+                                            "name": "实验楼22",
+                                            "is_deleted": 0,
+                                            "children": [
+                                                {
+                                                    "name": "实验楼22",
+                                                    "is_deleted": 1,
+                                                    "children": []
+                                                },
+                                                {
+                                                    "name": "实验楼22",
+                                                    "is_deleted": 1,
+                                                    "children": []
+                                                },
+                                                {
+                                                    "name": "实验楼22",
+                                                    "is_deleted": 1,
+                                                    "children": []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "实验楼333",
+                    "is_deleted": 0,
+                    "children": [
+                        {
+                            "name": "实验楼1",
+                            "is_deleted": 0,
+                            "children": [
+                                {
+                                    "name": "实验楼11",
+                                    "is_deleted": 1,
                                     "children": []
                                 },
                                 {
                                     "name": "实验楼22",
-                                    "is_deleted": 1,
+                                    "is_deleted": 0,
                                     "children": []
                                 }
                             ]
-                        },
+                        }
+                    ]
+                },
+                {
+                    "name": "实验楼6677",
+                    "is_deleted": 0,
+                    "children": [
                         {
-                            "name": "实验楼2",
+                            "name": "实验楼7788",
                             "is_deleted": 1,
                             "children": []
                         }
@@ -61,17 +118,18 @@ target_obj = {
 def traverse_model(obj):
     if obj["is_deleted"] == 1:
         return None
-    if "children" in obj:
-        if obj["children"].__len__() > 0:
-            pop_list = []
-            for idx, child_obj in enumerate(obj["children"]):
-                if not traverse_model(child_obj):
-                    pop_list.append(idx)
-            for i in pop_list:
-                obj["children"].pop(i)
+    if "children" in obj and obj["children"].__len__() > 0:
+        pop_list = []
+        for idx, child_obj in enumerate(obj["children"]):
+            if not traverse_model(child_obj):
+                pop_list.append(idx)
+        for idx, item in enumerate(pop_list):
+            if idx == 0:
+                obj["children"].pop(item)
+            else:
+                obj["children"].pop(item - idx)
     return obj
 
 
 result = traverse_model(target_obj)
-print(result)
-
+print(json.dumps(result))
