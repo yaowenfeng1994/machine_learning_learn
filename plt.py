@@ -91,6 +91,7 @@ class Perceptron(object):
 
 
 ppn = Perceptron(eta=0.001, n_iter=20)
+print(x.shape, y)
 ppn.logistics_fit(x, y)
 # print(ppn.log())
 

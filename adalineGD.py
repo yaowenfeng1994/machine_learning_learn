@@ -38,6 +38,7 @@ class AdalineGD(object):
     def log(self):
         self.activation_func(1)
 
+
 # 随机梯度下降法SGD
 class AdalineSGD(object):
     def __init__(self, eta=0.01, n_iter=10, shuffle=True, random_state=None):
