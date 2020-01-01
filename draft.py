@@ -188,10 +188,13 @@ def remove_deleted_children(org):
 # 原地循环删除数组
 a = [1, 0, 1, 0, 1, 0, 0, 1, 0, 1]
 j = 0
-for i in range(len(a)):
-    if a[j] == 1:
-        a.pop(j)
-    else:
-        j += 1
-    print("i: ", i, "  a: ", a, "len: ", len(a))
-print(a)
+# for i in range(len(a)):
+#     if a[j] == 1:
+#         a.pop(j)
+#     else:
+#         j += 1
+#     print("i: ", i, "  a: ", a, "len: ", len(a))
+# print(a)
+
+b = [1,2,3]
+print(b[:2])
