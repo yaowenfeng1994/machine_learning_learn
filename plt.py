@@ -62,12 +62,19 @@ class Perceptron(object):
             for xi, yi in zip(x, y):
                 update = (yi - self.logistics(self.net_input(xi))) * xi  # 这条是 李航统计学习求导 得出
                 self.wb[1:] += update
-                # self.wb[0] += update
+                self.wb[0] += update.sum()
                 yp = self.logistics(self.net_input(xi))
-                print("样本结果：", yi, "预测结果:", yp)
-            print("第 %d 次迭代" % idx)
+                # print("样本结果：", yi, "预测结果:", yp)
+            # print("第 %d 次迭代" % idx)
         print(self.wb)
         return self
+
+    def predict_v2(self, x):
+        l = list()
+        for xi in x:
+            a = np.dot(xi, np.array([-5.83, 10.64])) + np.array([4.81])
+            l.append(self.logistics(a))
+        return l
 
     @staticmethod
     def logistics(s):
@@ -92,9 +99,9 @@ class Perceptron(object):
 
 ppn = Perceptron(eta=0.001, n_iter=20)
 print(x.shape, y)
-ppn.logistics_fit(x, y)
+# ppn.logistics_fit(x, y)
 # print(ppn.log())
-
+print(ppn.predict_v2(x))
 # ppn = adalineGD.AdalineSGD(eta=0.1, n_iter=10, shuffle=False, random_state=1)
 # ppn.fit(x, y)
 

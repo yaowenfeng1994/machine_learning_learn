@@ -221,7 +221,7 @@ class NeuralNetMLP(object):
                 z_h, a_h, z_out, a_out = self._forward(X_train[batch_idx])
 
                 ##################
-                # Backpropagation
+                # Backpropagation 反向传播训练
                 ##################
 
                 # [n_samples, n_classlabels]
