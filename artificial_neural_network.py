@@ -1,6 +1,7 @@
 import os
 import struct
 import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -196,9 +197,8 @@ class NeuralNetMLP(object):
         self.w_out = self.random.normal(loc=0.0, scale=0.1,
                                         size=(self.n_hidden, n_output))
         epoch_strlen = len(str(self.epochs))  # for progress formatting
-        print(self.epochs, epoch_strlen)
+        # print(self.epochs, epoch_strlen)
         self.eval_ = {"cost": [], "train_acc": [], "valid_acc": []}
-        print(y_train.shape, n_output)
         y_train_enc = self._onehot(y_train, n_output)
 
         # iterate over training epochs
@@ -206,14 +206,18 @@ class NeuralNetMLP(object):
             # iterate over minibatches
             indices = np.arange(X_train.shape[0])
             if self.shuffle:
-                self.random.shuffle(indices)  # 每次都把[0,1,2...498,499]里的数字顺序给打乱
-            # print(indices.shape[0] - self.minibatch_size + 1, self.minibatch_size)
-            print(X_train.shape)
+                self.random.shuffle(indices)  # 每次都把[0,1,2...X_train.shape[0]-1, X_train.shape[0]]里的数字顺序给打乱
             for start_idx in range(0, indices.shape[0] - self.minibatch_size + 1, self.minibatch_size):
                 # print("start_idx: ", start_idx + self.minibatch_size)
                 batch_idx = indices[start_idx:start_idx + self.minibatch_size]
                 # forward propagation
-                # X_train[batch_idx] 每次只传 minibatch_size 个进去训练
+                #
+                """
+                    indices 是一批 [0,1,2...X_train.shape[0]-1, X_train.shape[0]] 的数字（做索引用）
+                    batch_idx 是 indices 随机取的 minibatch_size 个数字（做索引用）
+                    X_train[batch_idx] 每次只传 minibatch_size 个进去训练
+                  y_train_enc[batch_idx] 
+                """
                 z_h, a_h, z_out, a_out = self._forward(X_train[batch_idx])
 
                 ##################
@@ -221,6 +225,7 @@ class NeuralNetMLP(object):
                 ##################
 
                 # [n_samples, n_classlabels]
+                # print(y_train_enc.shape, batch_idx, y_train_enc[batch_idx])
                 sigma_out = a_out - y_train_enc[batch_idx]
 
                 # [n_samples, n_hidden]
@@ -228,9 +233,10 @@ class NeuralNetMLP(object):
 
                 # [n_samples, n_classlabels] dot [n_classlabels, n_hidden]
                 # -> [n_samples, n_hidden]
+                # print("sigma_out.shape: ", sigma_out.shape, "self.w_out.T", self.w_out.T.shape)
                 sigma_h = (np.dot(sigma_out, self.w_out.T) *
                            sigmoid_derivative_h)
-
+                # print("sigma_h: ", sigma_h.shape)
                 # [n_features, n_samples] dot [n_samples, n_hidden]
                 # -> [n_features, n_hidden]
                 grad_w_h = np.dot(X_train[batch_idx].T, sigma_h)
@@ -269,15 +275,15 @@ class NeuralNetMLP(object):
             valid_acc = ((np.sum(y_valid == y_valid_pred)).astype(np.float) /
                          X_valid.shape[0])
 
-            sys.stderr.write('\r%0*d/%d | Cost: %.2f '
-                             '| Train/Valid Acc.: %.2f%%/%.2f%% ' %
+            sys.stderr.write("\r%0*d/%d | Cost: %.2f "
+                             "| Train/Valid Acc.: %.2f%%/%.2f%% " %
                              (epoch_strlen, i + 1, self.epochs, cost,
                               train_acc * 100, valid_acc * 100))
             sys.stderr.flush()
 
-            self.eval_['cost'].append(cost)
-            self.eval_['train_acc'].append(train_acc)
-            self.eval_['valid_acc'].append(valid_acc)
+            self.eval_["cost"].append(cost)
+            self.eval_["train_acc"].append(train_acc)
+            self.eval_["valid_acc"].append(valid_acc)
 
         return self
 
@@ -304,11 +310,23 @@ if __name__ == "__main__":
         # print(mnist.files)
         x_train, y_train, x_test, y_test = [mnist[f] for f in mnist.files]
         # print(y_train[500:800])
-        nn = NeuralNetMLP(n_hidden=100, l2=0.01, epochs=10, eta=0.0001, minibatch_size=100, shuffle=True, seed=1)
-        nn.fit(X_train=x_train[:500], y_train=y_train[:500], X_valid=x_train[500:800], y_valid=y_train[500:800])
-        plt.plot(range(nn.epochs), nn.eval_["cost"])
-        plt.xlabel("Epochs")
-        plt.ylabel("Cost")
+        nn = NeuralNetMLP(n_hidden=100, l2=0.01, epochs=200, eta=0.0001, minibatch_size=100, shuffle=True, seed=1)
+        nn.fit(X_train=x_train[:5000], y_train=y_train[:5000], X_valid=x_train[5000:6000], y_valid=y_train[5000:6000])
+        # plt.plot(range(nn.epochs), nn.eval_["cost"])
+        # plt.xlabel("Epochs")
+        # plt.ylabel("Cost")
         # plt.show()
+        # plt.plot(range(nn.epochs), nn.eval_["train_acc"], label="training")
+        # plt.plot(range(nn.epochs), nn.eval_["valid_acc"], label="validation", linestyle="--")
+        # plt.xlabel("Epochs")
+        # plt.ylabel("Accuracy")
+        # plt.show()
+        y_test_pred = nn.predict(x_test)
+        acc = (np.sum(y_test == y_test_pred).astype(np.float) / x_test.shape[0])
+        print("Training accuracy: %.2f%%" % (acc * 100))
     elif execute == 3:
         pass
+        a = np.array([[2, 2], [3, 3]])
+        b = np.array([[2, 2], [3, 3]])
+        print(a * b)
+        print(np.dot(a, b))
