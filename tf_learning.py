@@ -1,9 +1,11 @@
 import os
 import warnings
+
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
-from tensorflow.examples.tutorials.mnist import input_data
+import tensorflow.contrib.keras as keras
+
 from artificial_neural_network import load_mnist
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -58,8 +60,20 @@ def predict_linreg(sess, model, x_test):
     return y_pred
 
 
+def create_batch_generator(x, y, batch_size=128, shuffle=False):
+    x_copy = np.array(x)
+    y_copy = np.array(y)
+    if shuffle:
+        data = np.column_stack((x_copy, y_copy))
+        np.random.shuffle(data)
+        x_copy = data[:, :-1]
+        y_copy = data[:, -1].astype(int)
+    for i in range(0, x.shape[0], batch_size):
+        yield (x_copy[i: i + batch_size, :], y_copy[i: i + batch_size])
+
+
 if __name__ == "__main__":
-    execute = 4
+    execute = 5
     if execute == 1:
         g = tf.Graph()
         with g.as_default():
@@ -139,3 +153,80 @@ if __name__ == "__main__":
                 "classes": tf.argmax(logits, axis=1, name="predicted_classes"),
                 "probabilities": tf.nn.softmax(logits, name="softmax_tensor")
             }
+        with g.as_default():
+            cost = tf.losses.softmax_cross_entropy(onehot_labels=y_onehot, logits=logits)
+            optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
+            train_op = optimizer.minimize(loss=cost)
+            init_op = tf.global_variables_initializer()
+        sess = tf.Session(graph=g)
+        sess.run(init_op)
+        for epoch in range(50):
+            training_costs = []
+            # print("y_train: ", y_train, y_train.shape)
+            batch_generator = create_batch_generator(x_train_centered, y_train, batch_size=64)
+            for batch_x, batch_y in batch_generator:
+                feed = {tf_x: batch_x, tf_y: batch_y}
+                _, batch_cost = sess.run([train_op, cost], feed_dict=feed)
+                training_costs.append(batch_cost)
+            print(" -- Epoch %2d Avg.Training Loss: %.4f" % (epoch + 1, np.mean(training_costs)))
+        feed = {tf_x: x_test_centered}
+        y_pred = sess.run(predictions["classes"], feed_dict=feed)
+        print("Test Accuracy: %.2f%%" % (100 * np.sum(y_pred == y_test) / y_test.shape[0]))
+    elif execute == 5:
+        x_train, y_train = load_mnist("MNIST_data", kind="train")
+        print("Rows: %d, Columns: %d" % (x_train.shape[0], x_train.shape[1]))
+        x_test, y_test = load_mnist("MNIST_data", kind="t10k")
+        print("Rows: %d, Columns: %d" % (x_train.shape[0], x_train.shape[1]))
+        # axis是几，那就表明哪一维度被压缩成1
+        mean_vals = np.mean(x_train, axis=0)
+        std_val = np.std(x_train)
+        x_train_centered = (x_train - mean_vals) / std_val
+        x_test_centered = (x_test - mean_vals) / std_val
+        del x_train, x_test
+        print(x_train_centered.shape, y_train.shape)
+        print(x_test_centered.shape, y_test.shape)
+
+        y_train_onehot = keras.utils.to_categorical(y_train)
+        print("First 3 labels: ", y_train[:3])
+        print("First 3 labels (one-hot):\n", y_train_onehot[:3])
+        model = keras.models.Sequential()
+        model.add(
+            keras.layers.Dense(
+                units=50,
+                input_dim=x_train_centered.shape[1],
+                kernel_initializer="glorot_uniform",
+                bias_initializer="zeros",
+                activation="tanh"
+            )
+        )
+        model.add(
+            keras.layers.Dense(
+                units=50,
+                input_dim=50,
+                kernel_initializer="glorot_uniform",
+                bias_initializer="zeros",
+                activation="tanh"
+            )
+        )
+        model.add(
+            keras.layers.Dense(
+                units=y_train_onehot.shape[1],
+                input_dim=50,
+                kernel_initializer="glorot_uniform",
+                bias_initializer="zeros",
+                activation="softmax"
+            )
+        )
+        sgd_optimizer = keras.optimizers.SGD(lr=0.001, decay=1e-7, momentum=0.9)
+        model.compile(optimizer=sgd_optimizer, loss="categorical_crossentropy")
+        history = model.fit(x_train_centered, y_train_onehot, batch_size=64, epochs=50, verbose=1, validation_split=0.1)
+        y_train_pred = model.predict_classes(x_train_centered, verbose=0)
+        print("First 3 predictions: ", y_train_pred[:3])
+        correct_preds = np.sum(y_train == y_train_pred, axis=0)
+        train_acc = correct_preds / y_train.shape[0]
+        print("First 3 predictions: ", y_train_pred[:3])
+        print("Training Accuracy: %.2f%%" % (train_acc * 100))
+        y_test_pred = model.predict_classes(x_test_centered, verbose=0)
+        correct_preds = np.sum(y_test == y_test_pred, axis=0)
+        test_acc = correct_preds / y_test.shape[0]
+        print("Test Accuracy: %.2f%%" % (test_acc * 100))
