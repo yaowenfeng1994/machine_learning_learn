@@ -20,3 +20,5 @@ if __name__ == "__main__":
             print("Shapes: ", s1, s2, s3)
         with tf.Session(graph=g) as sess:
             print("Ranks: ", r1.eval(), r2.eval(), r3.eval())
+    elif execute == 2:
+        g2 = tf.Graph()
