@@ -176,7 +176,7 @@ if __name__ == "__main__":
         x_train, y_train = load_mnist("MNIST_data", kind="train")
         print("Rows: %d, Columns: %d" % (x_train.shape[0], x_train.shape[1]))
         x_test, y_test = load_mnist("MNIST_data", kind="t10k")
-        print("Rows: %d, Columns: %d" % (x_train.shape[0], x_train.shape[1]))
+        print("Rows: %d, Columns: %d" % (x_test.shape[0], x_test.shape[1]))
         # axis是几，那就表明哪一维度被压缩成1
         mean_vals = np.mean(x_train, axis=0)
         std_val = np.std(x_train)
