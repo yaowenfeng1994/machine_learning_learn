@@ -1,5 +1,6 @@
 # 该文件是草稿文件
-import json
+import tensorflow as tf
+
 # for p in combinations((0, 1, 2, 3, 4, 5, 6, 7, 8, 9), r=8):
 #     print(p)
 
@@ -186,15 +187,35 @@ def remove_deleted_children(org):
 # print(json.dumps(result))
 
 # 原地循环删除数组
-a = [1, 0, 1, 0, 1, 0, 0, 1, 0, 1]
-j = 0
-# for i in range(len(a)):
-#     if a[j] == 1:
-#         a.pop(j)
-#     else:
-#         j += 1
-#     print("i: ", i, "  a: ", a, "len: ", len(a))
-# print(a)
+# a = [1, 0, 1, 0, 1, 0, 0, 1, 0, 1]
+# j = 0
+# # for i in range(len(a)):
+# #     if a[j] == 1:
+# #         a.pop(j)
+# #     else:
+# #         j += 1
+# #     print("i: ", i, "  a: ", a, "len: ", len(a))
+# # print(a)
+#
+# b = [1,2,3]
+# print(b[:2])
 
-b = [1,2,3]
-print(b[:2])
+
+if __name__ == "__main__":
+    # tf_x = tf.placeholder(tf.float32, shape=[None, 784], name="tf_x")
+    # tf_y = tf.placeholder(tf.int32, shape=[None], name="tf_y")
+
+    # shape参数的个数应为维度数，每一个参数的值代表该维度上的长度
+    a = tf.constant([[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]])
+    tf_a = tf.reshape(a, shape=[-1, 3, 3, 1])
+    b = tf.constant([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    tf_b = tf.one_hot(indices=b, depth=10)
+    # b = tf.initialize_all_variables()
+    with tf.Session() as sess:
+        # sess.run(b)
+        # print(a)
+        # print(sess.run(tf_a))
+        # print(tf_a)
+        print(b)
+        print(sess.run(tf_b))
+        print(tf_b)

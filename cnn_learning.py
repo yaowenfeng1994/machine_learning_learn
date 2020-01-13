@@ -1,13 +1,18 @@
 import os
 import warnings
+
 import imageio
 import numpy as np
 import tensorflow as tf
+
 from artificial_neural_network import load_mnist
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
+
+
+# https://blog.csdn.net/weixin_38368941/article/details/80000447
 
 
 def batch_generator(x, y, batch_size=64, shuffle=False, random_seed=None):
@@ -21,17 +26,21 @@ def batch_generator(x, y, batch_size=64, shuffle=False, random_seed=None):
         yield (x[i:i + batch_size, :], y[i:i + batch_size])
 
 
+# kernel_size 核张量维度  n_output_channels 输出特征分布图的数量
 def conv_layer(input_tensor, name, kernel_size, n_output_channels, padding_mode="SAME", strides=(1, 1, 1, 1)):
-    with tf.variable_scope(name):
+    with tf.variable_scope(name):  # 变量作用域
         input_shape = input_tensor.get_shape().as_list()
+        print("input_shape: ", input_shape)
         n_input_channels = input_shape[-1]
+        print("n_input_channels:", n_input_channels)
         weights_shape = list(kernel_size) + [n_input_channels, n_output_channels]
+        print("weights_shape: ", weights_shape)  # [5, 5, 1, 32] 同理卷积层也是5*5*1的图像有32个卷积核，所以一共有5*5*32个权重
         weights = tf.get_variable(name="_weights", shape=weights_shape)
         print(weights)
         biases = tf.get_variable(name="_biases", initializer=tf.zeros(shape=[n_output_channels]))
         print(biases)
         conv = tf.nn.conv2d(input=input_tensor, filter=weights, strides=strides, padding=padding_mode)  # padding 填充
-        print(conv)
+        print(conv)  # [?, 24, 24, 32] 24*24 是原 28*28 经过卷积核缩小后的样式
         conv = tf.nn.bias_add(conv, biases, name="net_pre-activation")
         print(conv)
         conv = tf.nn.relu(conv, name="activation")
@@ -64,7 +73,9 @@ def fc_layer(input_tensor, name, n_output_units, activation_fn=None):
 def build_cnn(learning_rate=.001):
     tf_x = tf.placeholder(tf.float32, shape=[None, 784], name="tf_x")
     tf_y = tf.placeholder(tf.int32, shape=[None], name="tf_y")
+    # 为什么有四个维度，因为图像还有一个深度，比如颜色有RGB，第一个-1代表未知多少张图片，28*28，最后一个维度1代表颜色（也可以理解为深度）
     tf_x_image = tf.reshape(tf_x, shape=[-1, 28, 28, 1], name="tf_x_reshaped")
+    print(tf_x_image)
     tf_y_onehot = tf.one_hot(indices=tf_y, depth=10, dtype=tf.float32, name="tf_y_onehot")
     print("\nBuilding 1st layer: ")
     h1 = conv_layer(tf_x_image, name="conv_1", kernel_size=(5, 5), padding_mode="VALID", n_output_channels=32)
@@ -161,26 +172,32 @@ if __name__ == "__main__":
         x_train_centered = (x_train - mean_vals) / std_vals
         x_valid_centered = (x_valid - mean_vals) / std_vals
         x_test_centered = (x_test - mean_vals) / std_vals
-        print("==========================================")
-        g = tf.Graph()
-        with g.as_default():
-            x = tf.placeholder(tf.float32, shape=[None, 28, 28, 1])
-            conv_layer(x, name="convtest", kernel_size=(3, 3), n_output_channels=32)
-        del g, x
-        print("==========================================")
-        g = tf.Graph()
-        with g.as_default():
-            x = tf.placeholder(tf.float32, shape=[None, 28, 28, 1])
-            fc_layer(x, name="fctest", n_output_units=32, activation_fn=tf.nn.relu)
-        del g, x
-        print("==========================================")
+        # print("==========================================")
+        # g = tf.Graph()
+        # with g.as_default():
+        #     x = tf.placeholder(tf.float32, shape=[None, 28, 28, 1])
+        #     conv_layer(x, name="convtest", kernel_size=(3, 3), n_output_channels=32)
+        # del g, x
+        # print("==========================================")
+        # g = tf.Graph()
+        # with g.as_default():
+        #     x = tf.placeholder(tf.float32, shape=[None, 28, 28, 1])
+        #     fc_layer(x, name="fctest", n_output_units=32, activation_fn=tf.nn.relu)
+        # del g, x
+        # print("==========================================")
         g = tf.Graph()
         random_seed = 123
         with g.as_default():
             tf.set_random_seed(random_seed)
             build_cnn()
             saver = tf.train.Saver()
+        # with tf.Session(graph=g) as sess:
+        #     train(sess, training_set=(x_train_centered, y_train), validation_set=(x_valid_centered, y_valid),
+        #           initialize=True, random_seed=random_seed)
+        #     save(saver, sess, epoch=20)
         with tf.Session(graph=g) as sess:
-            train(sess, training_set=(x_train_centered, y_train), validation_set=(x_valid_centered, y_valid),
-                  initialize=True, random_seed=random_seed)
-            save(saver, sess, epoch=20)
+            load(saver, sess, epoch=20, path="./model")
+            preds = predict(sess, x_test_centered, return_proba=False)
+            print("Test Accuracy: %.3f%%" % (100 * np.sum(preds == y_test) / len(y_test)))
+    elif execute == 3:
+        pass
