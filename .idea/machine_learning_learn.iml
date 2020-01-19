@@ -34,6 +34,9 @@
     <facet type="Python" name="Python facet">
       <configuration sdkName="Python 3.6 (py_virtualenv_3.6)" />
     </facet>
+    <facet type="Python" name="Python facet">
+      <configuration sdkName="Python 3.6 (py_virtualenv_3.6)" />
+    </facet>
   </component>
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
