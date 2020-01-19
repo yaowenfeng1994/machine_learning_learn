@@ -281,8 +281,14 @@ if __name__ == "__main__":
         #     load(saver, sess, epoch=20, path="./model")
         #     preds = predict(sess, x_test_centered, return_proba=False)
         #     print("Test Accuracy: %.3f%%" % (100 * np.sum(preds == y_test) / len(y_test)))
-        cnn = ConvNN(random_seed=123)
-        cnn.train(training_set=(x_train_centered, y_train), validation_set=(x_valid_centered, y_valid), initialize=True)
-        cnn.save(epoch=20)
+        # print("==========================================")
+        # cnn = ConvNN(random_seed=123)
+        # cnn.train(training_set=(x_train_centered, y_train), validation_set=(x_valid_centered, y_valid), initialize=True)
+        # cnn.save(epoch=20)
+        cnn2 = ConvNN(random_seed=123)
+        cnn2.load(epoch=20, path="./tflayers-model/")
+        print(cnn2.predict(x_test_centered[:10, :]))
+        preds = cnn2.predict(x_test_centered)
+        print("Test Accuracy: %.2f%%" % (100 * np.sum(y_test == preds) / len(y_test)))
     elif execute == 3:
         pass
