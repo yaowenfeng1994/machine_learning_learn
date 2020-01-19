@@ -218,7 +218,7 @@ class NeuralNetMLP(object):
                     X_train[batch_idx] 每次只传 minibatch_size 个进去训练
                   y_train_enc[batch_idx] 
                 """
-                z_h, a_h, z_out, a_out = self._forward(X_train[batch_idx])
+                z_h, a_h, z_out, a_out = self._forward(X_train[batch_idx])  # 前向传播
 
                 ##################
                 # Backpropagation 反向传播训练
